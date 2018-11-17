@@ -1,0 +1,119 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "type": "string"
+        },
+        "concat_name": {
+            "type": "string"
+        },
+        "appInsightsName": {
+            "type": "string"
+        },
+        "appInsightsLocation": {
+            "type": "string"
+        },
+        "testLocations": {
+            "type": "string"
+        },
+        "timeout": {
+            "type": "string"
+        },
+        "frequency": {
+            "type": "string"
+        },
+        "enabled": {
+            "type": "string"
+        },
+        "webTest": {
+            "type": "string"
+        },
+        "customEmails": {
+            "type": "string"
+        },
+        "send_to_service_owners": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "testLocations": "[split(parameters('testLocations'),',')]",
+        "copy": [
+            {
+                "name": "locations",
+                "count": "[length(variables('testLocations'))]",
+                "input": {
+                    "Id": "[variables('testLocations')[copyIndex('locations')]]"
+                }
+            }
+        ]
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Insights/webtests",
+            "name": "[parameters('concat_name')]",
+            "apiVersion": "2015-05-01",
+            "location": "[parameters('appInsightsLocation')]",
+            "tags": {
+                "[concat('hidden-link:',resourceId('microsoft.insights/components/',parameters('appInsightsName')))]": "Resource"
+            },
+            "scale": null,
+            "properties": {
+                "SyntheticMonitorId": "[parameters('concat_name')]",
+                "Name": "[parameters('name')]",
+                "Description": "",
+                "Enabled": "[bool(parameters('enabled'))]",
+                "Frequency": "[int(parameters('frequency'))]",
+                "Timeout": "[int(parameters('timeout'))]",
+                "Kind": "ping",
+                "RetryEnabled": true,
+                "Locations": "[variables('locations')]",
+                "Configuration": {
+                    "WebTest": "[trim(parameters('webTest'))]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[parameters('name')]",
+            "type": "Microsoft.Insights/alertRules",
+            "apiVersion": "2016-03-01",
+            "location": "West Europe",
+            "tags": {
+                "[concat('hidden-link:', resourceId('Microsoft.Insights/components', parameters('appInsightsName')))]": "Resource",
+                "[concat('hidden-link:', resourceId('Microsoft.Insights/webtests', parameters('concat_name') ))]": "Resource"
+            },
+            "properties": {
+                "Name": "[parameters('name')]",
+                "description": "",
+                "isEnabled": true,
+                "condition": {
+                    "$type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.LocationThresholdRuleCondition, Microsoft.WindowsAzure.Management.Mon.Client",
+                    "odata.type": "Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition",
+                    "dataSource": {
+                        "$type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.RuleMetricDataSource, Microsoft.WindowsAzure.Management.Mon.Client",
+                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+                        "resourceUri": "[resourceId('Microsoft.Insights/webtests', parameters('concat_name'))]",
+                        "resourceLocation": null,
+                        "metricNamespace": null,
+                        "metricName": "GSMT_AvRaW",
+                        "legacyResourceId": null
+                    },
+                    "windowSize": "PT5M",
+                    "failedLocationCount": 3
+                },
+                "actions": [
+                    {
+                        "$type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.RuleEmailAction, Microsoft.WindowsAzure.Management.Mon.Client",
+                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+                        "sendToServiceOwners": "[bool(parameters('send_to_service_owners'))]",
+                        "customEmails": "[if(empty(parameters('customEmails')), '', split(parameters('customEmails'), ','))]"                        
+                    }
+                ]
+            },
+            "dependsOn": ["[resourceId('Microsoft.Insights/webtests', parameters('concat_name'))]"]    
+        }
+
+    ],
+    "outputs": {}
+}
