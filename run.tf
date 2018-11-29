@@ -1,0 +1,3 @@
+module "webtests" {
+  source                 = "./webtests"
+}
