@@ -2,13 +2,13 @@ locals {
   logic_apps = [
     {
       name = "first-sample-logic-app",
-      frequency = "",
-      interval = ""
+      frequency = "Week",
+      interval = 1
     },
     {
       name = "second-sample-logic-app",
-      frequency = "",
-      interval = ""
+      frequency = "Hour",
+      interval = 10
     },
   ]
 
@@ -41,8 +41,9 @@ resource "azurerm_logic_app_trigger_recurrence" "hourly_trigger" {
 }
 
 resource "azurerm_logic_app_action_http" "http_action" {
+  count        = "${length(local.logic_apps)}"
   name         = "clear-stale-objects"
-  logic_app_id = "${azurerm_logic_app_workflow.logic-app.id}"
+  logic_app_id = "${azurerm_logic_app_workflow.logic-app.*.id}"
   method       = "DELETE"
   uri          = "http://example.com/clear-stable-objects"
 }
