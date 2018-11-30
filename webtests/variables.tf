@@ -23,7 +23,7 @@ variable "credential_password" {
 
 variable "timeout" {
   description = "Seconds until this WebTest will timeout and fail. Default value is 30."
-  default     = 120
+  default     = 60
 }
 
 variable "send_to_service_owners" {
@@ -38,7 +38,7 @@ variable "test_locations" {
 
 variable "frequency" {
   description = "Interval in seconds between test runs for this WebTest. Default value is 300."
-  default     = 300
+  default     = 120
 }
 
 variable "custom_emails" {
