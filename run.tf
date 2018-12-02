@@ -9,3 +9,7 @@ module "logic-apps" {
 module "action-groups" {
   source = "./action-groups"
 }
+
+module "classic-alerts" {
+  source = "./classic-alerts"
+}
