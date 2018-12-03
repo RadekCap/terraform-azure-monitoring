@@ -1,0 +1,26 @@
+{
+    "name": "string",
+    "type": "microsoft.insights/scheduledQueryRules",
+    "apiVersion": "2018-04-16",
+    "location": "string",
+    "tags": {},
+    "properties": {
+      "description": "string",
+      "enabled": "string",
+      "source": {
+        "query": "string",
+        "authorizedResources": [
+          "string"
+        ],
+        "dataSourceId": "string",
+        "queryType": "ResultCount"
+      },
+      "schedule": {
+        "frequencyInMinutes": "integer",
+        "timeWindowInMinutes": "integer"
+      },
+      "action": {
+        "odata.type": "string"
+      }
+    }
+  }
